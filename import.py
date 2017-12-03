@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import sys                                  # required to identify the errors for error catching and terminating the script
+import traceback                            # required to output error trace
 import tempfile
 import qif
 from decimal import Decimal
@@ -145,10 +146,11 @@ def write_transactions_to_gnucash(gnucash_file, currency, all_items, dry_run=Fal
             add_transaction(book, item, currency)
             imported_items.add(item.as_tuple())
     except:                                         # Output error and quit
-        e = sys.exc_info()[0]
-        logging.error('Something did not work:')
-        logging.error(e)
         session.end()
+        e = sys.exc_info()
+        logging.error('Something did not work:')
+        logging.error(e[0])
+        traceback.print_exception(*)
         sys.exit()
             
     if dry_run:
