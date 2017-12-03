@@ -163,7 +163,7 @@ def write_transactions_to_gnucash(gnucash_file, currency, all_items, dry_run=Fal
         e = sys.exc_info()
         logging.error('Something did not work:')
         logging.error(e[0])
-        traceback.print_exception(*)
+        traceback.print_exception(*e)
         sys.exit()
             
     if dry_run:
