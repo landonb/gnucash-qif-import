@@ -53,7 +53,7 @@ To import all files ending with ".qif" from your MTP device (connected via USB) 
 
     ./import.py -v -f ~/my-accounts.gnucash mtp:.*.qif
 
-You can use the `--dry-run` option to do a safe trial run.
+You can use the `--dry-run` option to do a safe trial run if you use a file based GnuCash file. The dry run does not work on DB backends (i.e. all data is always written)
 In order to be able to safely repeat the above command without getting a bunch of duplicate transactions (and to speed up the stupidly slow MTP access),
 the import.py script remembers the imported file names in `~/.gnucash-qif-import-cache.json`.
 
