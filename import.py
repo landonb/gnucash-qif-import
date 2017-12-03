@@ -13,6 +13,7 @@ import logging
 import os
 import re
 import subprocess
+import sys                                  # required to identify the errors for error catching and terminating the script
 import tempfile
 import qif
 from decimal import Decimal
@@ -124,25 +125,32 @@ def read_entries(fn, imported):
 def write_transactions_to_gnucash(gnucash_file, currency, all_items, dry_run=False, date_from=None):
     logging.debug('Opening GnuCash file %s..', gnucash_file)
     session = Session(gnucash_file)
-    book = session.book
-    commod_tab = book.get_table()
-    currency = commod_tab.lookup('ISO4217', currency)
+    try:                                            # Close the GnuCash file if an error occured
+        book = session.book
+        commod_tab = book.get_table()
+        currency = commod_tab.lookup('ISO4217', currency)
 
-    if date_from:
-        date_from = datetime.datetime.strptime(date_from, '%Y-%m-%d')
+        if date_from:
+            date_from = datetime.datetime.strptime(date_from, '%Y-%m-%d')
 
-    imported_items = set()
-    for item in all_items:
-        if date_from and item.date < date_from:
-            logging.info('Skipping entry %s (%s)', item.date.strftime('%Y-%m-%d'), item.split_amount)
-            continue
-        if item.as_tuple() in imported_items:
-            logging.info('Skipping entry %s (%s) --- already imported!', item.date.strftime('%Y-%m-%d'),
-                         item.split_amount)
-            continue
-        add_transaction(book, item, currency)
-        imported_items.add(item.as_tuple())
-
+        imported_items = set()
+        for item in all_items:
+            if date_from and item.date < date_from:
+                logging.info('Skipping entry %s (%s)', item.date.strftime('%Y-%m-%d'), item.split_amount)
+                continue
+            if item.as_tuple() in imported_items:
+                logging.info('Skipping entry %s (%s) --- already imported!', item.date.strftime('%Y-%m-%d'),
+                             item.split_amount)
+                continue
+            add_transaction(book, item, currency)
+            imported_items.add(item.as_tuple())
+    except:                                         # Output error and quit
+        e = sys.exc_info()[0]
+        logging.error('Something did not work:')
+        logging.error(e)
+        session.end()
+        sys.exit()
+            
     if dry_run:
         logging.debug('** DRY-RUN **')
     else:
