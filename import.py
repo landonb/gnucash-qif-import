@@ -178,7 +178,7 @@ def main(args):
                                       date_from=args.date_from)
 
     if not args.dry_run:
-        with open(imported_cache, 'wb') as fd:
+        with open(imported_cache, 'w') as fd:
             json.dump(list(imported), fd)
 
 
