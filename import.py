@@ -46,8 +46,8 @@ def add_transaction(book, item, currency):
     tx = Transaction(book)
     tx.BeginEdit()
     tx.SetCurrency(currency)
-    tx.SetDateEnteredTS(datetime.datetime.now())
-    tx.SetDatePostedTS(item.date)
+    tx.SetDateEnteredSecs(datetime.datetime.now())
+    tx.SetDatePostedSecs(item.date)
     tx.SetDescription(item.memo)
 
     s1 = Split(book)
