@@ -69,8 +69,7 @@ def parse_qif(infile):
         data = line[1:].strip()
         if firstchar == '\n':  # blank line
             pass
-        elif firstchar == '^':
-                               # end of item
+        elif firstchar == '^':  # end of item
             if curItem.type != 'Account':
                 # save the item
                 items.append(curItem)
