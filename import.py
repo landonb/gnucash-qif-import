@@ -25,7 +25,7 @@ MTP_SCHEME = 'mtp:'
 
 def lookup_account_by_path(root, path):
     acc = root.lookup_by_name(path[0])
-    if acc.get_instance() == None:
+    if acc.get_instance() is None:
         raise Exception('Account path {} not found'.format(':'.join(path)))
     if len(path) > 1:
         return lookup_account_by_path(acc, path[1:])
