@@ -112,4 +112,4 @@ if __name__ == '__main__':
     # read from stdin and write CSV to stdout
     items = parse_qif(sys.stdin)
     for item in items:
-        print item
+        print(item)
