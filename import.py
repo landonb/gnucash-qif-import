@@ -79,7 +79,14 @@ def add_transaction(book, item, currency):
     # - Changes code to:
     #  # SetDatePostedSecs contains a bug by wrongly adapting to timezones so reverting to this function.
     #  tx.SetDate(item.date.day, item.date.month, item.date.year)
-    tx.SetDescription(item.memo)
+
+    # "Deal with new field mapping of GnuCash for Android"
+    #   https://github.com/markusj/gnucash-qif-import/commit/f1c4558
+    if item.payee is None:    
+        tx.SetDescription(item.memo)
+    else:
+        tx.SetDescription(item.payee)
+        tx.SetNotes(item.memo)
 
     # WATCH/2021-03-13: If you need to process multiple splits, see markusj:
     # - *Add suport for split transactions*
