@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -100,7 +100,10 @@ def parse_qif(infile):
             if curItem.type == 'Account':
                 account = data
         elif firstchar == '!':
-            curItem.type = data
+            if data == 'Account':
+                curItem.type = data
+            else:
+                pass # Ignore Type: statements
         else:
             # don't recognise this line; ignore it
             print >> sys.stderr, 'Skipping unknown line:\n', line
