@@ -12,6 +12,8 @@ Original source from http://code.activestate.com/recipes/306103-quicken-qif-file
 import sys
 import datetime
 
+import re
+
 
 class QifItem:
 
@@ -75,7 +77,7 @@ def parse_qif(infile):
             curItem = QifItem()
             curItem.account = account
         elif firstchar == 'D':
-            year, month, day = map(int, data.split('/'))
+            year, month, day = map(int, re.split('[/-]', data, 2))
             curItem.date = datetime.datetime(year=year, month=month, day=day)
         elif firstchar == 'T':
             curItem.amount = data
