@@ -19,6 +19,8 @@ import tempfile
 import qif
 from decimal import Decimal
 
+# HINT/2021-03-13: If you need piecash support, see:
+#   https://github.com/sanzoghenzo/piecash-qif-import
 from gnucash import Session, Transaction, Split, GncNumeric
 
 MTP_SCHEME = 'mtp:'
