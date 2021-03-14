@@ -44,6 +44,19 @@ def add_transaction(book, item, currency):
     root = book.get_root_account()
     acc = lookup_account(root, item.account)
 
+    # If Split not specified, default to source account values.
+    # - As inspired by 2 users' forks I found while auditing changes since
+    #   the root project hasn't been updated since 2017 (and Python 2).
+    #   - See:
+    #       https://github.com/sbluhm/gnucash-qif-import/commit/7db3112
+    #       https://github.com/stephanritscher/gnucash-qif-import/commit/2c5a6fa
+    # WATCH/2021-03-13: I'm blindly incorporating changes without actually testing,
+    # so I'm not sure the best approach here, but I think it's stephanritscher's,
+    # who uses an Imbalance account (whereas sbluhm uses item.category).
+    #   split_category = item.split_category or item.category
+    split_category = item.split_category or 'Imbalance-{}'.format(currency)
+    split_amount = item.split_amount if item.split_amount is not None else item.amount
+
     tx = Transaction(book)
     tx.BeginEdit()
     tx.SetCurrency(currency)
@@ -54,11 +67,11 @@ def add_transaction(book, item, currency):
     s1 = Split(book)
     s1.SetParent(tx)
     s1.SetAccount(acc)
-    amount = int(Decimal(item.split_amount.replace(',', '.')) * currency.get_fraction())
+    amount = int(Decimal(split_amount.replace(',', '.')) * currency.get_fraction())
     s1.SetValue(GncNumeric(amount, currency.get_fraction()))
     s1.SetAmount(GncNumeric(amount, currency.get_fraction()))
 
-    acc2 = lookup_account(root, item.split_category)
+    acc2 = lookup_account(root, split_category)
     s2 = Split(book)
     s2.SetParent(tx)
     s2.SetAccount(acc2)
