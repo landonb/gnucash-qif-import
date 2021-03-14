@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 A simple class to represent a Quicken (QIF) file, and a parser to
