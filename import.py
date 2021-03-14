@@ -59,6 +59,9 @@ def add_transaction(book, item, currency):
     split_category = item.split_category or 'Imbalance-{}'.format(currency)
     split_amount = item.split_amount if item.split_amount is not None else item.amount
 
+    # HINT/2021-03-13: If you need to check the books for duplicates first, see:
+    #   https://github.com/psyipm/gnucash-qif-import/commit/587b5b5
+
     tx = Transaction(book)
     tx.BeginEdit()
     tx.SetCurrency(currency)
