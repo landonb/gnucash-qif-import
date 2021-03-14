@@ -81,6 +81,12 @@ def add_transaction(book, item, currency):
     #  tx.SetDate(item.date.day, item.date.month, item.date.year)
     tx.SetDescription(item.memo)
 
+    # WATCH/2021-03-13: If you need to process multiple splits, see markusj:
+    # - *Add suport for split transactions*
+    #     https://github.com/markusj/gnucash-qif-import/commit/ec068cb
+    #     https://github.com/markusj/gnucash-qif-import/commit/ecfe025
+    #     https://github.com/markusj/gnucash-qif-import/commit/33da80b
+
     s1 = Split(book)
     s1.SetParent(tx)
     s1.SetAccount(acc)
