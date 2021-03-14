@@ -58,6 +58,7 @@ def add_transaction(book, item, currency):
     #   split_category = item.split_category or item.category
     split_category = item.split_category or 'Imbalance-{}'.format(currency)
     split_amount = item.split_amount if item.split_amount is not None else item.amount
+    split_memo = item.split_memo if item.split_memo is not None else item.memo
 
     # HINT/2021-03-13: If you need to check the books for duplicates first, see:
     #   https://github.com/psyipm/gnucash-qif-import/commit/587b5b5
@@ -112,6 +113,7 @@ def add_transaction(book, item, currency):
     s2.SetAccount(acc2)
     s2.SetValue(GncNumeric(amount * -1, currency.get_fraction()))
     s2.SetAmount(GncNumeric(amount * -1, currency.get_fraction()))
+    s2.SetMemo(split_memo)
 
     tx.CommitEdit()
 
