@@ -60,8 +60,25 @@ def add_transaction(book, item, currency):
     tx = Transaction(book)
     tx.BeginEdit()
     tx.SetCurrency(currency)
+    # 2021-03-13: The original GnuCash 2 code:
+    #  tx.SetDateEnteredTS(datetime.datetime.now())
+    #  tx.SetDatePostedTS(item.date)
+    # The equivalent GnuCash 3 code:
     tx.SetDateEnteredSecs(datetime.datetime.now())
     tx.SetDatePostedSecs(item.date)
+    # WATCH/2021-03-13 19:27: But per sbluhm, the GNC 3 calls are incorrect.
+    # - See:
+    #     https://github.com/sbluhm/gnucash-qif-import/commit/0ccb1e9
+    # - Says:
+    #     Had to change the GnuCash 3 function tx.SetDatePostedSecs to
+    #     tx.SetDate. SetDatePostedSecs seems to contain a bug where the time
+    #     is not interpreted properly (wrong time zone adaptions. For the same
+    #     reason, tx.SetDateEnteredSecs was removed. Especially, as this time
+    #     stamp is set automatically to the same value, when creating a new
+    #     entry.
+    # - Changes code to:
+    #  # SetDatePostedSecs contains a bug by wrongly adapting to timezones so reverting to this function.
+    #  tx.SetDate(item.date.day, item.date.month, item.date.year)
     tx.SetDescription(item.memo)
 
     s1 = Split(book)
