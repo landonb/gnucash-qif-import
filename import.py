@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# vim:tw=0:ts=4:sw=4:et:norl:ft=python
 
 '''
 GnuCash Python helper script to import transactions from QIF text files into GnuCash's own file format.
@@ -19,32 +20,48 @@ import tempfile
 import qif
 from decimal import Decimal
 
-# HINT/2021-03-13: If you need piecash support, see:
+# CXREF: `gnucash` docs:
+#   https://code.gnucash.org/docs/MAINT/modules.html
+# CXREF: Related project with *piecash* support:
 #   https://github.com/sanzoghenzo/piecash-qif-import
-from gnucash import Session, Transaction, Split, GncNumeric
+from gnucash import Account, GncNumeric, Session, Split, Transaction
 
 MTP_SCHEME = 'mtp:'
 
 
-def lookup_account_by_path(root, path):
+def lookup_account_by_path(root, path, book):
     acc = root.lookup_by_name(path[0])
     if acc is None or acc.get_instance() is None:
-        raise Exception('Account path {} not found'.format(':'.join(path)))
+        # Don't croak, e.g.,:
+        #   raise Exception('Account path {} not found'.format(':'.join(path)))
+        # But assume user wants `mkdir -p`-esque side-effects.
+        is_placeholder = len(path) > 1
+
+        logging.info(f"Adding account: {path[0]} (is{is_placeholder and ' not'} placeholder)")
+
+        acc = Account(book)
+        acc.SetName(path[0])
+        acc.SetType(root.GetType())
+        acc.SetPlaceholder(is_placeholder)
+        acc.SetCommodity(root.GetCommodity())
+
+        root.append_child(acc)
+
     if len(path) > 1:
-        return lookup_account_by_path(acc, path[1:])
+        return lookup_account_by_path(acc, path[1:], book)
     return acc
 
 
-def lookup_account(root, name):
+def lookup_account(root, name, book=None):
     path = name.split(':')
-    return lookup_account_by_path(root, path)
+    return lookup_account_by_path(root, path, book)
 
 
 def add_transaction(book, item, currency):
     logging.info('Adding transaction for account "%s" (%s %s)..', item.account, item.split_amount,
                  currency.get_mnemonic())
     root = book.get_root_account()
-    acc = lookup_account(root, item.account)
+    acc = lookup_account(root, item.account, book)
 
     # If Split not specified, default to source account values.
     # - As inspired by 2 users' forks I found while auditing changes since
@@ -107,7 +124,7 @@ def add_transaction(book, item, currency):
     s1.SetValue(GncNumeric(amount, currency.get_fraction()))
     s1.SetAmount(GncNumeric(amount, currency.get_fraction()))
 
-    acc2 = lookup_account(root, split_category)
+    acc2 = lookup_account(root, split.category, book)
     s2 = Split(book)
     s2.SetParent(tx)
     s2.SetAccount(acc2)
